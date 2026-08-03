@@ -276,12 +276,21 @@ Return the first matching node, or nil if none is found."
         (loop (treesit-node-parent node))))))
 
 ;;;###autoload
+(defun bicep-ts-mode--treesit-ready-p ()
+  (or (treesit-ready-p 'bicep :quiet)
+      (progn
+	(display-warning
+	 'bicep-ts-mode
+	 "Treesitter grammar is not installed. \
+Please run `M-x treesit-install-language-grammar RET bicep'")
+	nil)))
+
+;;;###autoload
 (define-derived-mode bicep-ts-mode prog-mode "Bicep"
   "Major mode for editing BICEP, powered by tree-sitter."
   :syntax-table bicep-ts-mode--syntax-table
 
-  (if (not (treesit-ready-p 'bicep))
-      (message "Please run `M-x treesit-install-language-grammar RET bicep'")
+  (when (bicep-ts-mode--treesit-ready-p)
     (setq treesit-primary-parser (treesit-parser-create 'bicep))
 
     ;; Comments
@@ -368,11 +377,8 @@ Return the first matching node, or nil if none is found."
              '(bicep . ("https://github.com/tree-sitter-grammars/tree-sitter-bicep" "v1.1.0")))
 
 ;;;###autoload
-(and (fboundp 'treesit-ready-p)
-     (treesit-ready-p 'bicep)
-     (progn
-       (add-to-list 'auto-mode-alist '("\\.bicep\\(param\\)?\\'"
-                                       . bicep-ts-mode))))
+(when (bicep-ts-mode--treesit-ready-p)
+  (add-to-list 'auto-mode-alist '("\\.bicep\\(param\\)?\\'" . bicep-ts-mode)))
 
 ;;;###autoload
 (with-eval-after-load 'eglot
