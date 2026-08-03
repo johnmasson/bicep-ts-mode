@@ -203,7 +203,7 @@ Changes may require an Emacs-restart to take effect."
       json-array)))
 
 (defun bicep--unzip-file (zip-file destination)
-  "Unzip ZIP-FILE into DESTINATION directory using the 'unzip' shell command."
+  "Unzip ZIP-FILE into DESTINATION directory using the \\='unzip\\=' shell command."
   (unless (file-directory-p destination)
     (make-directory destination :parents))  ;; Ensure the destination directory exists
   (let ((exit-code (call-process "unzip" nil nil nil "-o" zip-file "-d" destination)))
