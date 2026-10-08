@@ -91,7 +91,8 @@ Changes may require an Emacs-restart to take effect."
   '("var" "param" "resource" "func"
     "module" "type" "metadata"
     "targetScope" "output"
-    "for" "in" "using" "existing" "if")
+    "for" "in" "using" "existing" "if"
+    "extends")
   "Bicep keywords for tree-sitter font-locking.")
 
 (defvar bicep-ts-mode--font-lock-settings
@@ -248,7 +249,9 @@ Changes may require an Emacs-restart to take effect."
   (defvar eglot-server-programs)
     (if (file-exists-p (bicep-langserver-path)) 
 	(add-to-list 'eglot-server-programs
-                     `(bicep-ts-mode . ("dotnet" ,(bicep-langserver-path))))))
+                     `(((bicep-ts-mode :language-id "bicep")
+			(bicep-param-ts-mode :language-id "bicep-params"))
+		       . ("dotnet" ,(bicep-langserver-path))))))
 
 
 (defun bicep-langserver-path ()
@@ -338,6 +341,8 @@ Return the first matching node, or nil if none is found."
     
     (treesit-major-mode-setup)))
 
+(define-derived-mode bicep-param-ts-mode bicep-ts-mode "Bicep params")
+
 ;; quote management
 
 (defun bicep--insert-single-quote-dwim ()
@@ -390,8 +395,8 @@ Return the first matching node, or nil if none is found."
 (and (fboundp 'treesit-ready-p)
      (treesit-ready-p 'bicep)
      (progn
-       (add-to-list 'auto-mode-alist '("\\.bicep\\(param\\)?\\'"
-                                       . bicep-ts-mode))))
+       (add-to-list 'auto-mode-alist '("\\.bicep\\'" . bicep-ts-mode))
+       (add-to-list 'auto-mode-alist '("\\.bicepparam\\'" . bicep-param-ts-mode))))
 
 ;;;###autoload
 (with-eval-after-load 'eglot
